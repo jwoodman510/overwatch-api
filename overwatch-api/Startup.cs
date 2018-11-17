@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,7 @@ namespace overwatch_api
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            services.AddCors();
             services.AddMemoryCache();
             services.AddHttpClient();
 
@@ -34,17 +36,16 @@ namespace overwatch_api
             {
                 app.UseDeveloperExceptionPage();
             }
-            else
-            {
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
 
             app.UseSwagger()
                .UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.json", "Overwatch API V1"));
 
-            app.UseMvc();
+            app.UseCors(x =>
+            {
+                x.AllowAnyHeader();
+                x.AllowAnyOrigin();
+                x.AllowAnyMethod();
+            }).UseMvc();
         }
     }
 }
