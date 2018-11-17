@@ -9,8 +9,8 @@ using Newtonsoft.Json;
 
 namespace overwatch_api.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class StatsController : ControllerBase
     {
         private static readonly string[] Regions = { "na", "eu", "asia" };
