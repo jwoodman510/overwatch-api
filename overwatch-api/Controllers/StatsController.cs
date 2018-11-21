@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using overwatch_api.Enums;
+using overwatch_api.Models;
 
 namespace overwatch_api.Controllers
 {
@@ -13,8 +17,7 @@ namespace overwatch_api.Controllers
     [Route("api/[controller]")]
     public class StatsController : ControllerBase
     {
-        private static readonly string[] Regions = { "na", "eu", "asia" };
-        private static readonly string[] Platforms = { "pc", "psn", "xbox" };
+        private static Regex BattleTagRegex = new Regex("^.+-[0-9]+$");
 
         private readonly IMemoryCache _cache;
         private readonly IConfiguration _configuration;
@@ -30,23 +33,25 @@ namespace overwatch_api.Controllers
             _httpClientFactory = httpClientFactory;
         }
 
+        [Produces("application/json")]
         [HttpGet("{platform}/{region}/{battletag}")]
-        public async Task<IActionResult> GetAsync([FromRoute] string platform, [FromRoute] string region, [FromRoute] string battletag)
+        [ProducesResponseType(typeof(PlayerStats), 200)]
+        public async Task<IActionResult> GetAsync([FromRoute] Platform platform, [FromRoute] Region region, [FromRoute] string battletag)
         {
-            if (!Platforms.Contains(platform))
+            if (!BattleTagRegex.IsMatch(battletag))
             {
-                return NotFound();
+                return BadRequest("Invalid battletag.");
             }
 
-            if (!Regions.Contains(region))
-            {
-                return NotFound();
-            }
+            var result = await _cache.GetOrCreateAsync($"{platform}:{region}:{battletag}", x => GetProfileAsync(x, platform, region, battletag));
 
-            return Ok(await _cache.GetOrCreateAsync($"{platform}:{region}:{battletag}", x => GetProfileAsync(x, platform, region, battletag)));
+            result.Region = region;
+            result.Platform = platform;
+
+            return Ok(result);
         }
 
-        private async Task<object> GetProfileAsync(ICacheEntry cacheEntry, string platform, string region, string battletag)
+        private async Task<PlayerStats> GetProfileAsync(ICacheEntry cacheEntry, Platform platform, Region region, string battletag)
         {
             var ttl = int.Parse(_configuration["ProfileTTL"]);
 
@@ -54,13 +59,13 @@ namespace overwatch_api.Controllers
             {
                 httpClient.BaseAddress = new Uri(_configuration["ApiHost"]);
 
-                var response = await httpClient.GetAsync($"{platform}/{region}/{battletag}/profile");
+                var response = await httpClient.GetAsync($"{platform.ToString().ToLower()}/{region.ToString().ToLower()}/{battletag}/profile");
 
                 response.EnsureSuccessStatusCode();
 
                 var json = await response.Content.ReadAsStringAsync();
 
-                var result = JsonConvert.DeserializeObject(json);
+                var result = JsonConvert.DeserializeObject<PlayerStats>(json);
 
                 cacheEntry.SetValue(result);
                 cacheEntry.SetAbsoluteExpiration(TimeSpan.FromMinutes(ttl));
