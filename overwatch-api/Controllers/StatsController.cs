@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using overwatch_api.Enums;
 using overwatch_api.Models;
+using overwatch_api.Services;
 
 namespace overwatch_api.Controllers
 {
@@ -21,16 +19,16 @@ namespace overwatch_api.Controllers
 
         private readonly IMemoryCache _cache;
         private readonly IConfiguration _configuration;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IEnumerable<IStatsService> _statsServices;
 
         public StatsController(
             IMemoryCache cache,
             IConfiguration configuration,
-            IHttpClientFactory httpClientFactory)
+            IEnumerable<IStatsService> statsServices)
         {
             _cache = cache;
             _configuration = configuration;
-            _httpClientFactory = httpClientFactory;
+            _statsServices = statsServices;
         }
 
         [Produces("application/json")]
@@ -55,23 +53,21 @@ namespace overwatch_api.Controllers
         {
             var ttl = int.Parse(_configuration["ProfileTTL"]);
 
-            using (var httpClient = _httpClientFactory.CreateClient())
+            foreach(var service in _statsServices)
             {
-                httpClient.BaseAddress = new Uri(_configuration["ApiHost"]);
+                try
+                {
+                    var result = await service.GetAsync(platform, region, battletag);
 
-                var response = await httpClient.GetAsync($"{platform.ToString().ToLower()}/{region.ToString().ToLower()}/{battletag}/profile");
+                    cacheEntry.SetValue(result);
+                    cacheEntry.SetAbsoluteExpiration(TimeSpan.FromMinutes(ttl));
 
-                response.EnsureSuccessStatusCode();
-
-                var json = await response.Content.ReadAsStringAsync();
-
-                var result = JsonConvert.DeserializeObject<PlayerStats>(json);
-
-                cacheEntry.SetValue(result);
-                cacheEntry.SetAbsoluteExpiration(TimeSpan.FromMinutes(ttl));
-
-                return result;
+                    return result;
+                }
+                catch (Exception) { }
             }
+
+            throw new ApplicationException("All service calls failed.");
         }
     }
 }

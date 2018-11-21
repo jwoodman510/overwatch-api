@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Converters;
+using overwatch_api.Services;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace overwatch_api
@@ -28,6 +29,9 @@ namespace overwatch_api
             services.AddCors();
             services.AddMemoryCache();
             services.AddHttpClient();
+
+            services
+                .AddTransient<IStatsService, OwApiStatsService>();
 
             services.AddSwaggerGen(x => x.SwaggerDoc("v1", new Info { Title = "Overwatch API", Version = "v1" }));
         }
