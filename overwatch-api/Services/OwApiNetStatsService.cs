@@ -71,7 +71,6 @@ namespace overwatch_api.Services
             {
                 Icon = stats?.Avatar,
                 Level = stats?.Level ?? 0,
-                Prestige = int.TryParse(stats?.Prestige, out int x) ? x : 0,
                 Rating = stats?.Comprank ?? 0,
                 RatingIcon = stats?.TierImage,
                 Endorsement = stats?.EndorsementLevel ?? 0

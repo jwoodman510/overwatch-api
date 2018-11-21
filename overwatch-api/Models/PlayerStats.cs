@@ -8,15 +8,17 @@ namespace overwatch_api.Models
         
         public Platform Platform { get; set; }
 
-        public string Icon { get; set; }
-
         public string Name { get; set; }
+
+        public string Icon { get; set; }
 
         public int Level { get; set; }
 
         public string LevelIcon { get; set; }
 
-        public int Prestige { get; set; }
+        public int Prestige => Level > 1 ? Level / 100 : 0;
+
+        public string PrestigeIcon { get; set; }
 
         public int Rating { get; set; }
 

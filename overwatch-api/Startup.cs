@@ -34,6 +34,7 @@ namespace overwatch_api
                 .AddLogging(x => x.AddConsole());
 
             services
+                .AddTransient<IStatsService, OwHerokuStatsService>()
                 .AddTransient<IStatsService, OwApiStatsService>()
                 .AddTransient<IStatsService, OwApiNetStatsService>()
                 .AddSingleton<ThrottleLock<OwApiNetStatsService>>();
