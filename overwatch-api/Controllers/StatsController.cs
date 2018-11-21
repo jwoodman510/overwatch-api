@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -45,19 +46,23 @@ namespace overwatch_api.Controllers
                 return BadRequest("Invalid battletag.");
             }
 
-            var result = await _cache.GetOrCreateAsync($"{platform}:{region}:{battletag}", x => GetProfileAsync(x, platform, region, battletag));
+            try
+            {
+                var result = await _cache.GetOrCreateAsync($"{platform}:{region}:{battletag}", x => GetProfileAsync(x, platform, region, battletag));
 
-            result.Region = region;
-            result.Platform = platform;
-
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (ApplicationException)
+            {
+                return StatusCode(500);
+            }
         }
 
         private async Task<PlayerStats> GetProfileAsync(ICacheEntry cacheEntry, Platform platform, Region region, string battletag)
         {
             var ttl = int.Parse(_configuration["ProfileTTL"]);
 
-            foreach(var service in _statsServices)
+            foreach(var service in _statsServices.Where(x => !x.Disabled))
             {
                 try
                 {
@@ -70,7 +75,7 @@ namespace overwatch_api.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"{nameof(GetProfileAsync)} Failed for service: {service.Host}");
+                    _logger.LogWarning(ex, $"{nameof(GetProfileAsync)} Failed for service: {service.Host}");
                 }
             }
 

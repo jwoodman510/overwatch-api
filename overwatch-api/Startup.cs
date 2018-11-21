@@ -35,7 +35,8 @@ namespace overwatch_api
 
             services
                 .AddTransient<IStatsService, OwApiStatsService>()
-                .AddTransient<IStatsService, OwApiNetStatsService>();
+                .AddTransient<IStatsService, OwApiNetStatsService>()
+                .AddSingleton<ThrottleLock<OwApiNetStatsService>>();
 
             services.AddSwaggerGen(x => x.SwaggerDoc("v1", new Info { Title = "Overwatch API", Version = "v1" }));
         }

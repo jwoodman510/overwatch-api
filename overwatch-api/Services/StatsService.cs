@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using overwatch_api.Enums;
 using overwatch_api.Models;
 using System;
@@ -9,17 +10,30 @@ namespace overwatch_api.Services
 {
     public abstract class StatsService : IStatsService
     {
+        public string Name => GetType().Name;
+
         public string Host { get; }
+
+        public bool Disabled => bool.TryParse(_configuration[$"Disabled:{Name}"], out bool disabled) && disabled;
 
         public abstract Task<PlayerStats> GetAsync(HttpClient httpClient, Platform platform, Region region, string battletag);
 
+        protected readonly ILogger Logger;
+
+        private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public StatsService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public StatsService(
+            IConfiguration configuration,
+            ILoggerFactory loggerFactory,
+            IHttpClientFactory httpClientFactory)
         {
+            Logger = loggerFactory.CreateLogger(Name);
+
+            _configuration = configuration;
             _httpClientFactory = httpClientFactory;
 
-            Host = configuration[$"Stats:{GetType().Name}"];
+            Host = configuration[$"Stats:{Name}"];
 
             if(Host == null)
             {
@@ -34,7 +48,13 @@ namespace overwatch_api.Services
                 httpClient.Timeout = TimeSpan.FromSeconds(2);
                 httpClient.BaseAddress = new Uri(Host);
 
-                return await GetAsync(httpClient, platform, region, battletag);
+                var stats = await GetAsync(httpClient, platform, region, battletag);
+
+                stats.Region = region;
+                stats.Name = battletag;
+                stats.Platform = platform;
+
+                return stats;
             }
         }
     }
