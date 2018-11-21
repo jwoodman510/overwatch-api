@@ -3,7 +3,7 @@
     public enum Platform
     {
         Pc,
-        Ps4,
-        Xbox
+        Psn,
+        Xbl
     }
 }

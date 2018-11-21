@@ -9,7 +9,7 @@ namespace overwatch_api.Services
 {
     public abstract class StatsService : IStatsService
     {
-        public readonly string Host;
+        public string Host { get; }
 
         public abstract Task<PlayerStats> GetAsync(HttpClient httpClient, Platform platform, Region region, string battletag);
 
@@ -19,7 +19,7 @@ namespace overwatch_api.Services
         {
             _httpClientFactory = httpClientFactory;
 
-            Host = configuration[GetType().Name];
+            Host = configuration[$"Stats:{GetType().Name}"];
 
             if(Host == null)
             {
@@ -31,6 +31,7 @@ namespace overwatch_api.Services
         {
             using (var httpClient = _httpClientFactory.CreateClient())
             {
+                httpClient.Timeout = TimeSpan.FromSeconds(2);
                 httpClient.BaseAddress = new Uri(Host);
 
                 return await GetAsync(httpClient, platform, region, battletag);

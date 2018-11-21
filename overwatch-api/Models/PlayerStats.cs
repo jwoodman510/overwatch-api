@@ -25,9 +25,5 @@ namespace overwatch_api.Models
         public int Endorsement { get; set; }
 
         public string EndorsementIcon { get; set; }
-
-        public GameStats QuickPlayStats { get; set; }
-
-        public GameStats CompetitiveStats { get; set; }
     }
 }

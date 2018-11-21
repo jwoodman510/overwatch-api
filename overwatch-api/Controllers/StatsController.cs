@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using overwatch_api.Enums;
 using overwatch_api.Models;
 using overwatch_api.Services;
@@ -19,14 +20,17 @@ namespace overwatch_api.Controllers
 
         private readonly IMemoryCache _cache;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<StatsController> _logger;
         private readonly IEnumerable<IStatsService> _statsServices;
 
         public StatsController(
             IMemoryCache cache,
             IConfiguration configuration,
+            ILogger<StatsController> logger,
             IEnumerable<IStatsService> statsServices)
         {
             _cache = cache;
+            _logger = logger;
             _configuration = configuration;
             _statsServices = statsServices;
         }
@@ -64,7 +68,10 @@ namespace overwatch_api.Controllers
 
                     return result;
                 }
-                catch (Exception) { }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"{nameof(GetProfileAsync)} Failed for service: {service.Host}");
+                }
             }
 
             throw new ApplicationException("All service calls failed.");
