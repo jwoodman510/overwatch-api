@@ -10,6 +10,8 @@ namespace overwatch_api.Services
 {
     public class OwHerokuStatsService : StatsService
     {
+        public override int Ordinal => 1;
+
         public OwHerokuStatsService(
             IConfiguration configuration,
             ILoggerFactory loggerFactory,

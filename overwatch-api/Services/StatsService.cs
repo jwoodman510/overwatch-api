@@ -10,6 +10,8 @@ namespace overwatch_api.Services
 {
     public abstract class StatsService : IStatsService
     {
+        public virtual int Ordinal => int.MaxValue;
+
         public string Name => GetType().Name;
 
         public string Host { get; }

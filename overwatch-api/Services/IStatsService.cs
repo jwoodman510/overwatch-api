@@ -6,6 +6,8 @@ namespace overwatch_api.Services
 {
     public interface IStatsService
     {
+        int Ordinal { get; }
+
         string Name { get; }
 
         string Host { get; }

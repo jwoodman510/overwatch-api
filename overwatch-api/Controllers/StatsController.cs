@@ -62,7 +62,7 @@ namespace overwatch_api.Controllers
         {
             var ttl = int.Parse(_configuration["ProfileTTL"]);
 
-            foreach(var service in _statsServices.Where(x => !x.Disabled))
+            foreach(var service in _statsServices.Where(x => !x.Disabled).OrderBy(x => x.Ordinal))
             {
                 try
                 {
