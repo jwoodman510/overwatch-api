@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Converters;
 using overwatch_api.Services;
 using Swashbuckle.AspNetCore.Swagger;
@@ -30,8 +29,7 @@ namespace overwatch_api
             services
                 .AddCors()
                 .AddMemoryCache()
-                .AddHttpClient()
-                .AddLogging(x => x.AddConsole());
+                .AddHttpClient();
 
             services
                 .AddTransient<IStatsService, OwHerokuStatsService>()

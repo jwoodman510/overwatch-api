@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Serilog;
 
 namespace overwatch_api
 {
@@ -12,6 +13,10 @@ namespace overwatch_api
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
+                .UseStartup<Startup>()
+                .UseSerilog((ctx, log) => log.WriteTo.Console().WriteTo.File(
+                    @"Logs\.log",
+                    rollingInterval: RollingInterval.Day,
+                    retainedFileCountLimit: 7));
     }
 }
