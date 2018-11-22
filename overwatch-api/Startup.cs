@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AspNetCoreRateLimit;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
@@ -28,6 +29,7 @@ namespace overwatch_api
 
             services
                 .AddCors()
+                .AddOptions()
                 .AddMemoryCache()
                 .AddHttpClient();
 
@@ -36,6 +38,13 @@ namespace overwatch_api
                 .AddTransient<IStatsService, OwApiStatsService>()
                 .AddTransient<IStatsService, OwApiNetStatsService>()
                 .AddSingleton<ThrottleLock<OwApiNetStatsService>>();
+
+            services
+                .Configure<IpRateLimitOptions>(Configuration.GetSection("IpRateLimiting"))
+                .Configure<IpRateLimitPolicies>(Configuration.GetSection("IpRateLimitPolicies"))
+                .AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>()
+                .AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+
 
             services.AddSwaggerGen(x => x.SwaggerDoc("v1", new Info { Title = "Overwatch API", Version = "v1" }));
         }
@@ -47,7 +56,8 @@ namespace overwatch_api
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseSwagger()
+            app.UseIpRateLimiting()
+               .UseSwagger()
                .UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.json", "Overwatch API V1"))
                .UseCors(x => x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod())
                .UseRewriter(new RewriteOptions().AddRedirect("^$", "swagger"))
