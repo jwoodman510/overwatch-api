@@ -16,7 +16,9 @@ namespace overwatch_api.Controllers
         private readonly ILogger<HealthController> _logger;
         private readonly IEnumerable<IStatsService> _statsServices;
 
-        public HealthController(ILogger<HealthController> logger, IEnumerable<IStatsService> statsServices)
+        public HealthController(
+            ILogger<HealthController> logger,
+            IEnumerable<IStatsService> statsServices)
         {
             _logger = logger;
             _statsServices = statsServices;
@@ -54,6 +56,8 @@ namespace overwatch_api.Controllers
                 if(deep)
                 {
                     await service.GetAsync(Platform.Pc, Region.Na, "woodman-11497");
+
+                    service.Enable();
                 }
                 else if (service.Disabled)
                 {
@@ -63,6 +67,8 @@ namespace overwatch_api.Controllers
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, $"{service.Name} is unavailable.");
+
+                service.Disable();
 
                 status.Health = Health.Unavailable;
             }

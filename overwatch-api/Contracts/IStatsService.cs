@@ -14,6 +14,10 @@ namespace overwatch_api.Services
 
         bool Disabled { get; }
 
+        void Enable();
+
+        void Disable();
+
         Task<PlayerStats> GetAsync(Platform platform, Region region, string battletag);
     }
 }

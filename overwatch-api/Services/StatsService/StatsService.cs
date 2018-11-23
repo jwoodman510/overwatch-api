@@ -44,6 +44,16 @@ namespace overwatch_api.Services
             }
         }
 
+        public void Enable()
+        {
+            _configuration[$"Disabled:{Name}"] = $"{false}";
+        }
+
+        public void Disable()
+        {
+            _configuration[$"Disabled:{Name}"] = $"{true}";
+        }
+
         public async Task<PlayerStats> GetAsync(Platform platform, Region region, string battletag)
         {
             using (var httpClient = _httpClientFactory.CreateClient())
