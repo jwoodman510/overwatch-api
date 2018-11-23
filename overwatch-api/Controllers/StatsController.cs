@@ -46,16 +46,14 @@ namespace overwatch_api.Controllers
                 return BadRequest("Invalid battletag.");
             }
 
-            try
-            {
-                var result = await _cache.GetOrCreateAsync($"{platform}:{region}:{battletag}", x => GetProfileAsync(x, platform, region, battletag));
+            var result = await _cache.GetOrCreateAsync($"{platform}:{region}:{battletag}", x => GetProfileAsync(x, platform, region, battletag));
 
-                return Ok(result);
-            }
-            catch (ApplicationException)
+            if(result == null)
             {
-                return StatusCode(500);
+                return NotFound();
             }
+
+            return Ok(result);
         }
 
         private async Task<PlayerStats> GetProfileAsync(ICacheEntry cacheEntry, Platform platform, Region region, string battletag)
@@ -79,7 +77,7 @@ namespace overwatch_api.Controllers
                 }
             }
 
-            throw new ApplicationException("All service calls failed.");
+            return null;
         }
     }
 }

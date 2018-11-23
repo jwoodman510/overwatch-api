@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ namespace overwatch_api.Services
     public class OwHerokuStatsService : StatsService
     {
         public override int Ordinal => 1;
+        public override TimeSpan Timout => TimeSpan.FromSeconds(5);
 
         public OwHerokuStatsService(
             IConfiguration configuration,

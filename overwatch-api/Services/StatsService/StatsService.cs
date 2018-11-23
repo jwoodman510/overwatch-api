@@ -11,6 +11,7 @@ namespace overwatch_api.Services
     public abstract class StatsService : IStatsService
     {
         public virtual int Ordinal => int.MaxValue;
+        public virtual TimeSpan Timout => TimeSpan.FromSeconds(2);
 
         public string Name => GetType().Name;
 
@@ -47,7 +48,7 @@ namespace overwatch_api.Services
         {
             using (var httpClient = _httpClientFactory.CreateClient())
             {
-                httpClient.Timeout = TimeSpan.FromSeconds(2);
+                httpClient.Timeout = Timout;
                 httpClient.BaseAddress = new Uri(Host);
 
                 var stats = await GetAsync(httpClient, platform, region, battletag);

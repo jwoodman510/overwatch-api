@@ -13,10 +13,8 @@ namespace overwatch_api
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseApplicationInsights()
                 .UseStartup<Startup>()
-                .UseSerilog((ctx, log) => log.WriteTo.Console().WriteTo.File(
-                    @"Logs\.log",
-                    rollingInterval: RollingInterval.Day,
-                    retainedFileCountLimit: 7));
+                .UseSerilog();
     }
 }
