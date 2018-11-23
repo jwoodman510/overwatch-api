@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 using Amazon.Lambda.Core;
@@ -12,16 +13,31 @@ namespace checkup
 {
     public class Function
     {
-        
+        private const string Endpoint = "https://overwatch-dashboard.azurewebsites.net/api/health/stats?deep=true";
+
         /// <summary>
         /// A simple function that takes a string and does a ToUpper
         /// </summary>
         /// <param name="input"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public string FunctionHandler(ILambdaContext context)
+        public async Task<string> FunctionHandler()
         {
-            return "wearegoodtogo";
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetAsync(Endpoint);
+
+                    response.EnsureSuccessStatusCode();
+
+                    return await response.Content.ReadAsStringAsync();
+                }
+            }
+            catch (Exception)
+            {
+                return "unavailable";
+            }
         }
     }
 }
