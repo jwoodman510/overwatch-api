@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2018
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "overwatch-api", "overwatch-api\overwatch-api.csproj", "{335ACE5B-D92A-416E-92AB-EDDBC11E5070}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "overwatch-api", "overwatch-api\overwatch-api.csproj", "{335ACE5B-D92A-416E-92AB-EDDBC11E5070}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "checkup", "checkup\checkup.csproj", "{F8773E47-A4BF-4022-8F1C-C4538BA356AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{335ACE5B-D92A-416E-92AB-EDDBC11E5070}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{335ACE5B-D92A-416E-92AB-EDDBC11E5070}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{335ACE5B-D92A-416E-92AB-EDDBC11E5070}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8773E47-A4BF-4022-8F1C-C4538BA356AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8773E47-A4BF-4022-8F1C-C4538BA356AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8773E47-A4BF-4022-8F1C-C4538BA356AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8773E47-A4BF-4022-8F1C-C4538BA356AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
