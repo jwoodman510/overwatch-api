@@ -66,8 +66,11 @@ namespace overwatch_api.Controllers
                 {
                     var result = await service.GetAsync(platform, region, battletag);
 
-                    cacheEntry.SetValue(result);
-                    cacheEntry.SetAbsoluteExpiration(TimeSpan.FromMinutes(ttl));
+                    if(result != null)
+                    {
+                        cacheEntry.SetValue(result);
+                        cacheEntry.SetAbsoluteExpiration(TimeSpan.FromMinutes(ttl));
+                    }
 
                     return result;
                 }
