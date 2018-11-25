@@ -46,7 +46,15 @@ namespace overwatch_api.Controllers
                 return BadRequest("Invalid battletag.");
             }
 
-            var result = await _cache.GetOrCreateAsync($"{platform}:{region}:{battletag}", x => GetProfileAsync(x, platform, region, battletag));
+            var cacheKey = $"{platform}:{region}:{battletag}";
+            var ttl = int.Parse(_configuration["ProfileTTL"]);
+
+            if (!_cache.TryGetValue(cacheKey, out PlayerStats result))
+            {
+                result = await GetProfileAsync(platform, region, battletag);
+
+                _cache.Set(cacheKey, result, TimeSpan.FromMinutes(ttl));
+            }
 
             if(result == null)
             {
@@ -56,23 +64,13 @@ namespace overwatch_api.Controllers
             return Ok(result);
         }
 
-        private async Task<PlayerStats> GetProfileAsync(ICacheEntry cacheEntry, Platform platform, Region region, string battletag)
+        private async Task<PlayerStats> GetProfileAsync(Platform platform, Region region, string battletag)
         {
-            var ttl = int.Parse(_configuration["ProfileTTL"]);
-
             foreach(var service in _statsServices.Where(x => !x.Disabled).OrderBy(x => x.Ordinal))
             {
                 try
                 {
-                    var result = await service.GetAsync(platform, region, battletag);
-
-                    if(result != null)
-                    {
-                        cacheEntry.SetValue(result);
-                        cacheEntry.SetAbsoluteExpiration(TimeSpan.FromMinutes(ttl));
-                    }
-
-                    return result;
+                    return await service.GetAsync(platform, region, battletag);
                 }
                 catch (Exception ex)
                 {
