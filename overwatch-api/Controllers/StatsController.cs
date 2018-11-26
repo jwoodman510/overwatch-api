@@ -53,7 +53,10 @@ namespace overwatch_api.Controllers
             {
                 result = await GetProfileAsync(platform, region, battletag);
 
-                _cache.Set(cacheKey, result, TimeSpan.FromMinutes(ttl));
+                if(result != null)
+                {
+                    _cache.Set(cacheKey, result, TimeSpan.FromMinutes(ttl));
+                }
             }
 
             if(result == null)
