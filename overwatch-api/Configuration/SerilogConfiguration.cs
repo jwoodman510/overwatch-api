@@ -12,16 +12,8 @@ namespace overwatch_api
 
         private static void Configure(WebHostBuilderContext ctx, LoggerConfiguration log)
         {
-            if(ctx.HostingEnvironment.IsDevelopment())
-            {
-                log
-                    .WriteTo.Console()
-                    .WriteTo.File(@"Logs\.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7);
-            }
-            else
-            {
-                log.WriteTo.ApplicationInsightsEvents(ctx.Configuration["ApplicationInsights:InstrumentationKey"]);
-            }
+            log.WriteTo.Console()
+               .WriteTo.File(@"Logs\.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 7);
         }
     }
 }
